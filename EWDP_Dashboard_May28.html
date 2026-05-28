@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E-WDP Dashboard 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+:root{--bg:#f4f6fb;--sf:#fff;--sf2:#f0f3fa;--bd:#e2e8f0;--ac:#2563eb;--ac2:#7c3aed;--gr:#059669;--am:#d97706;--tx:#1e293b;--mu:#64748b;--mu2:#94a3b8;--r:12px;--sh:0 1px 3px rgba(0,0,0,.07)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:14px}
+.hdr{background:#fff;border-bottom:1px solid var(--bd);padding:0 28px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:var(--sh)}
+.hdr-l{display:flex;align-items:center;gap:11px}
+.logo{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:15px}
+.hdr h1{font-size:15px;font-weight:700}.hdr-sub{font-size:11px;color:var(--mu);margin-top:1px}
+.updt{font-size:11px;color:var(--mu2);font-family:'DM Mono',monospace}
+.page{padding:18px 28px;max-width:1440px;margin:0 auto}
+.kg{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:11px;margin-bottom:16px}
+.kpi{background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:15px 17px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.kpi::after{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c,var(--ac));border-radius:2px 0 0 2px}
+.kl{font-size:10px;color:var(--mu);font-weight:700;text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px}
+.kv{font-size:24px;font-weight:700;line-height:1;letter-spacing:-1px}
+.ks{font-size:11px;color:var(--mu2);margin-top:4px}
+.kbar{height:4px;background:var(--sf2);border-radius:2px;margin-top:8px;overflow:hidden}
+.kfill{height:100%;border-radius:2px;background:var(--c,var(--ac));transition:width .9s ease}
+.ktot{background:linear-gradient(135deg,#2563eb 0%,#7c3aed 100%);color:#fff;border-radius:var(--r);padding:15px 17px;box-shadow:0 4px 14px rgba(37,99,235,.28)}
+.ktot .kl{color:rgba(255,255,255,.75)}.ktot .kv{color:#fff;font-size:26px}.ktot .ks{color:rgba(255,255,255,.65)}
+.fr{font-size:14px;font-weight:400;opacity:.7;margin-left:3px}
+.cgrid{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:820px){.cgrid{grid-template-columns:1fr}}
+.cc{background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:17px;box-shadow:var(--sh)}
+.ct{font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.6px;margin-bottom:13px}
+.fbar{background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:11px 16px;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;box-shadow:var(--sh)}
+.flbl{font-size:10px;color:var(--mu);font-weight:700;white-space:nowrap;text-transform:uppercase;letter-spacing:.5px}
+.fsel{background:var(--sf2);border:1px solid var(--bd);border-radius:8px;color:var(--tx);font-family:'Inter',sans-serif;font-size:12px;padding:5px 24px 5px 9px;cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748b'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;min-width:140px;transition:border-color .15s}
+.fsel:hover,.fsel:focus{border-color:var(--ac);background-color:#fff}
+.frst{background:transparent;border:1px solid var(--bd);border-radius:8px;color:var(--mu);font-size:11px;padding:5px 10px;cursor:pointer;font-family:'Inter',sans-serif}
+.frst:hover{background:var(--sf2)}
+.rcnt{font-size:11px;color:var(--mu);margin-left:auto;font-family:'DM Mono',monospace}
+.rcnt strong{color:var(--ac)}
+.dtbl-wrap{background:#fff;border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+.dthd{padding:11px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:var(--sf2)}
+.dttl{font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.6px}
+.sbox{background:#fff;border:1px solid var(--bd);border-radius:8px;padding:5px 10px 5px 28px;color:var(--tx);font-size:12px;font-family:'Inter',sans-serif;outline:none;width:210px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:9px center}
+.sbox:focus{border-color:var(--ac)}.sbox::placeholder{color:var(--mu2)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead tr{background:var(--sf2)}
+th{padding:9px 13px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--mu);cursor:pointer;white-space:nowrap;user-select:none;border-bottom:1px solid var(--bd)}
+th:hover{color:var(--tx)}th.sorted{color:var(--ac)}
+.si{margin-left:3px;opacity:.3;font-size:9px}th.sorted .si{opacity:1}
+tbody tr{border-bottom:1px solid var(--bd);transition:background .08s}
+tbody tr:last-child{border-bottom:none}tbody tr:hover{background:#f8faff}
+td{padding:9px 13px;vertical-align:middle}
+.pills{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.wp{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.w-active{background:#d1fae5;color:#065f46}
+.w-draft{background:#fef3c7;color:#92400e}
+/* progress bar in table */
+.pbar-wrap{display:flex;flex-direction:column;gap:5px;min-width:160px}
+.pbar-row{display:flex;align-items:center;gap:7px}
+.pbar-lbl{font-size:10px;color:var(--mu);width:68px;flex-shrink:0}
+.pbar-track{flex:1;height:6px;background:var(--sf2);border-radius:3px;overflow:hidden}
+.pbar-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.pbar-pct{font-size:10px;font-family:'DM Mono',monospace;font-weight:700;width:32px;text-align:right;flex-shrink:0}
+/* expand */
+.rc{cursor:pointer}
+.rc td:first-child::before{content:'\25BA';font-size:7px;color:var(--mu2);margin-right:7px;transition:transform .2s;display:inline-block}
+.rc.exp td:first-child::before{transform:rotate(90deg);color:var(--ac)}
+.er{display:none}.er.open{display:table-row}
+.ec{padding:0 13px 14px;background:#f8faff;border-bottom:1px solid var(--bd)}
+.ei{padding-top:12px}
+.pg5{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:8px}
+.pitem{background:#fff;border:1px solid var(--bd);border-radius:8px;padding:10px 12px;text-align:center}
+.pitem-lbl{font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;font-weight:600}
+.pitem-val{font-size:20px;font-weight:700;font-family:'DM Mono',monospace}
+.pitem-bar{height:4px;background:var(--sf2);border-radius:2px;margin-top:6px;overflow:hidden}
+.pitem-fill{height:100%;border-radius:2px}
+.mono{font-family:'DM Mono',monospace;font-weight:700}
+.pagi{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid var(--bd);flex-wrap:wrap;gap:8px;background:var(--sf2)}
+.pinf{font-size:11px;color:var(--mu);font-family:'DM Mono',monospace}
+.pbtns{display:flex;gap:4px}
+.pbtn{background:#fff;border:1px solid var(--bd);border-radius:6px;color:var(--mu);font-size:11px;padding:4px 9px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .12s}
+.pbtn:hover:not(:disabled){border-color:var(--ac);color:var(--ac);background:#eff6ff}
+.pbtn:disabled{opacity:.4;cursor:not-allowed}.pbtn.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.pill{background:var(--sf2);border:1.5px solid var(--bd);border-radius:20px;padding:3px 11px;font-size:11px;font-weight:600;color:var(--mu);cursor:pointer;transition:all .15s;white-space:nowrap;font-family:'Inter',sans-serif}
+.pill:hover{border-color:var(--ac);color:var(--ac)}
+.pill.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.footer{text-align:center;padding:16px;color:var(--mu2);font-size:11px;margin-top:18px}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="hdr-l">
+    <div class="logo">&#x1F4CA;</div>
+    <div><h1>E-WDP Dashboard</h1><div class="hdr-sub">Work Development Plan &middot; 2026</div></div>
+  </div>
+  <span class="updt" id="updt"></span>
+</div>
+<div class="page">
+  <div class="kg">
+    <div class="ktot">
+      <div class="kl">Total Record <span style="opacity:.55;font-size:9px">(excl. duplicates)</span></div>
+      <div class="kv" id="kT"></div>
+      <div class="ks" id="kTS"></div>
+    </div>
+    <div class="kpi" style="--c:#059669">
+      <div class="kl">Active</div><div class="kv" id="kA"></div>
+      <div class="kbar"><div class="kfill" id="bA" style="width:0;background:#059669"></div></div>
+    </div>
+    <div class="kpi" style="--c:#d97706">
+      <div class="kl">Draft</div><div class="kv" id="kD"></div>
+      <div class="kbar"><div class="kfill" id="bD" style="width:0;background:#d97706"></div></div>
+    </div>
+    <div class="kpi" style="--c:#7c3aed">
+      <div class="kl">Q1 Updated</div><div class="kv" id="kQ1"></div>
+      <div class="ks">Player WDP State</div>
+      <div class="kbar"><div class="kfill" id="bQ1" style="width:0;background:#7c3aed"></div></div>
+    </div>
+    <div class="kpi" style="--c:#d97706">
+      <div class="kl">Setting Goals</div><div class="kv" id="kGL"></div>
+      <div class="ks">Player WDP State</div>
+      <div class="kbar"><div class="kfill" id="bGL" style="width:0;background:#d97706"></div></div>
+    </div>
+    <div class="kpi" style="--c:#94a3b8">
+      <div class="kl">No WDP Yet</div><div class="kv" id="kNW"></div>
+      <div class="ks"><span id="kNWbtn" style="cursor:pointer;color:var(--ac);text-decoration:underline;font-size:11px" onclick="toggleNoWDP()">show names &#9660;</span></div>
+    </div>
+  </div>
+  <div id="noWDPbox" style="display:none;background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:14px 18px;margin-bottom:14px;box-shadow:var(--sh)">
+    <div style="font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Employees without WDP</div>
+    <div id="noWDPlist"></div>
+  </div>
+  <div class="cgrid" style="grid-template-columns:2fr 1fr">
+    <div class="cc"><div class="ct">Player's WDP Status by Department</div><canvas id="dC" height="160"></canvas></div>
+    <div class="cc"><div class="ct">Manager's Approval Status</div><canvas id="wC" height="220"></canvas></div>
+  </div>
+  <div class="fbar" style="flex-direction:column;align-items:flex-start">
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;width:100%">
+      <span class="flbl">Dept</span>
+      <select class="fsel" id="fD"><option value="">All</option></select>
+      <span class="flbl">WDP State</span>
+      <select class="fsel" id="fW"><option value="">All</option></select>
+      <span class="flbl">Record</span>
+      <select class="fsel" id="fR">
+        <option value="">Active &amp; Draft</option>
+        <option value="Active">Active only</option>
+        <option value="Draft">Draft only</option>
+      </select>
+      <button class="frst" onclick="resetF()">&#8635; Reset</button>
+      <span class="rcnt"><strong id="rcntN">0</strong> depts</span>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;width:100%;margin-top:8px">
+      <span class="flbl">Position Level</span>
+      <button class="pill on" data-g="">All</button>
+      <button class="pill" data-g="VP">VP</button>
+      <button class="pill" data-g="AVP">AVP</button>
+      <button class="pill" data-g="Division Manager">Div. Manager</button>
+      <button class="pill" data-g="Manager">Manager</button>
+      <button class="pill" data-g="Spec/Exec">Spec / Exec</button>
+    </div>
+  </div>
+  <div class="dtbl-wrap">
+    <div class="dthd">
+      <div class="dttl">Department Details <span style="font-weight:400;opacity:.7">(click row to expand avg parts)</span></div>
+      <input class="sbox" id="sbox" type="text" placeholder="Search department..." oninput="renderTbl()">
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th onclick="srt('dept')" id="th-dept">Department <span class="si">&#8597;</span></th>
+          <th onclick="srt('total')" id="th-total">Total <span class="si">&#8597;</span></th>
+          <th>Player's WDP Status</th>
+          <th>% Q1 Updated &amp; Approval</th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="pagi"><div class="pinf" id="pinf"></div><div class="pbtns" id="pbtns"></div></div>
+  </div>
+</div>
+<div class="footer">E-WDP Dashboard 2026 &middot; Department-level view &middot; No individual data displayed</div>
+<script>
+const KPI={"total":161,"active":143,"draft":18,"approved":13,"q1":118,"q2":1,"goals":42,"noWDP":6,"target":167,"pendingDonut":148};
+const DEPT_DATA=[{"dept":"International Business","total":27,"activeCount":25,"draftCount":2,"wdpStates":{"Q1 Review":23,"Draft":2,"Setting Goals":2},"approvedCount":2,"pendingCount":23,"approvedPct":8,"noWDPCount":2,"partsAvg":{"A":98.5,"B":91.8,"C":88.1,"D":88.1,"E":92.2}},{"dept":"Accounting","total":16,"activeCount":13,"draftCount":3,"wdpStates":{"Q1 Review":12,"Draft":3,"Setting Goals":1},"approvedCount":1,"pendingCount":12,"approvedPct":8,"noWDPCount":0,"partsAvg":{"A":93.4,"B":83.5,"C":52.7,"D":72.4,"E":77.8}},{"dept":"Thailand","total":14,"activeCount":11,"draftCount":3,"wdpStates":{"Q1 Review":11,"Draft":3},"approvedCount":2,"pendingCount":9,"approvedPct":18,"noWDPCount":0,"partsAvg":{"A":95.1,"B":81.7,"C":73.2,"D":74.3,"E":79.3}},{"dept":"Information Technology","total":10,"activeCount":9,"draftCount":1,"wdpStates":{"Setting Goals":7,"Q2 Review":1,"Draft":1,"Q1 Review":1},"approvedCount":1,"pendingCount":8,"approvedPct":11,"noWDPCount":1,"partsAvg":{"A":80.1,"B":73.7,"C":76.0,"D":67.2,"E":82.0}},{"dept":"Procurement","total":8,"activeCount":8,"draftCount":0,"wdpStates":{"Setting Goals":5,"Q1 Review":3},"approvedCount":0,"pendingCount":8,"approvedPct":0,"noWDPCount":0,"partsAvg":{"A":81.2,"B":73.2,"C":75.0,"D":74.5,"E":97.5}},{"dept":"Product Innovation - Thailand","total":8,"activeCount":7,"draftCount":1,"wdpStates":{"Draft":1,"Q1 Review":7},"approvedCount":2,"pendingCount":5,"approvedPct":29,"noWDPCount":0,"partsAvg":{"A":98.2,"B":96.1,"C":97.4,"D":93.5,"E":91.2}},{"dept":"CA/CS/Legal","total":8,"activeCount":8,"draftCount":0,"wdpStates":{"Q1 Review":8},"approvedCount":2,"pendingCount":6,"approvedPct":25,"noWDPCount":0,"partsAvg":{"A":94.1,"B":90.9,"C":60.1,"D":63.8,"E":72.5}},{"dept":"Global Marketing","total":8,"activeCount":8,"draftCount":0,"wdpStates":{"Q1 Review":8},"approvedCount":0,"pendingCount":8,"approvedPct":0,"noWDPCount":1,"partsAvg":{"A":96.2,"B":92.9,"C":60.0,"D":86.5,"E":97.5}},{"dept":"Strategy and Finance","total":7,"activeCount":7,"draftCount":0,"wdpStates":{"Q1 Review":5,"Setting Goals":2},"approvedCount":0,"pendingCount":7,"approvedPct":0,"noWDPCount":1,"partsAvg":{"A":92.0,"B":67.3,"C":64.0,"D":67.1,"E":82.9}},{"dept":"People HQ","total":7,"activeCount":7,"draftCount":0,"wdpStates":{"Setting Goals":2,"Q1 Review":5},"approvedCount":1,"pendingCount":6,"approvedPct":14,"noWDPCount":0,"partsAvg":{"A":92.7,"B":80.4,"C":60.9,"D":51.4,"E":54.3}},{"dept":"Commercial Excellence","total":6,"activeCount":6,"draftCount":0,"wdpStates":{"Q1 Review":5,"Setting Goals":1},"approvedCount":0,"pendingCount":6,"approvedPct":0,"noWDPCount":1,"partsAvg":{"A":78.0,"B":67.5,"C":56.7,"D":66.5,"E":70.0}},{"dept":"Research Development Innovation","total":6,"activeCount":4,"draftCount":2,"wdpStates":{"Setting Goals":4,"Draft":2},"approvedCount":1,"pendingCount":3,"approvedPct":25,"noWDPCount":0,"partsAvg":{"A":72.0,"B":63.8,"C":51.7,"D":48.0,"E":66.7}},{"dept":"Global Online Market","total":6,"activeCount":5,"draftCount":1,"wdpStates":{"Q1 Review":5,"Draft":1},"approvedCount":0,"pendingCount":5,"approvedPct":0,"noWDPCount":0,"partsAvg":{"A":96.3,"B":78.2,"C":13.3,"D":75.3,"E":83.3}},{"dept":"Research Development Center","total":5,"activeCount":4,"draftCount":1,"wdpStates":{"Draft":1,"Setting Goals":4},"approvedCount":0,"pendingCount":4,"approvedPct":0,"noWDPCount":0,"partsAvg":{"A":74.4,"B":65.8,"C":80.0,"D":84.0,"E":96.0}},{"dept":"Thailand Marketing","total":5,"activeCount":4,"draftCount":1,"wdpStates":{"Q1 Review":3,"Draft":1,"Setting Goals":1},"approvedCount":0,"pendingCount":4,"approvedPct":0,"noWDPCount":0,"partsAvg":{"A":90.2,"B":84.6,"C":60.0,"D":80.0,"E":88.0}},{"dept":"Cost Accounting","total":4,"activeCount":3,"draftCount":1,"wdpStates":{"Q1 Review":3,"Draft":1},"approvedCount":0,"pendingCount":3,"approvedPct":0,"noWDPCount":0,"partsAvg":{"A":85.8,"B":74.8,"C":87.5,"D":97.5,"E":100.0}},{"dept":"Supply Chain Management","total":4,"activeCount":2,"draftCount":2,"wdpStates":{"Setting Goals":1,"Draft":2,"Q1 Review":1},"approvedCount":0,"pendingCount":2,"approvedPct":0,"noWDPCount":0,"partsAvg":{"A":83.2,"B":66.0,"C":80.0,"D":74.0,"E":95.0}},{"dept":"Product Innovation - Global","total":4,"activeCount":4,"draftCount":0,"wdpStates":{"Setting Goals":1,"Q1 Review":3},"approvedCount":0,"pendingCount":4,"approvedPct":0,"noWDPCount":0,"partsAvg":{"A":84.5,"B":81.0,"C":75.0,"D":66.5,"E":70.0}},{"dept":"Management Office","total":3,"activeCount":3,"draftCount":0,"wdpStates":{"Setting Goals":3},"approvedCount":0,"pendingCount":3,"approvedPct":0,"noWDPCount":1,"partsAvg":{"A":49.0,"B":41.7,"C":26.7,"D":26.7,"E":13.3}},{"dept":"In Market - Philippines","total":3,"activeCount":3,"draftCount":0,"wdpStates":{"Setting Goals":2,"Q1 Review":1},"approvedCount":0,"pendingCount":3,"approvedPct":0,"noWDPCount":0,"partsAvg":{"A":80.0,"B":80.3,"C":88.3,"D":75.3,"E":56.7}},{"dept":"Sustainability Management & Corporate Communications","total":2,"activeCount":2,"draftCount":0,"wdpStates":{"Q1 Review":2},"approvedCount":1,"pendingCount":1,"approvedPct":50,"noWDPCount":0,"partsAvg":{"A":92.0,"B":75.0,"C":90.0,"D":56.0,"E":50.0}}];
+const NO_WDP_NAMES=[{"name":"Sureerat sandord","dept":"Strategy and Finance"},{"name":"Kanyaporn Skutalakul","dept":"Management Office"},{"name":"Thanawat Tejapisal","dept":"Commercial Excellence"},{"name":"Nattapat Sangkaewsri","dept":"Information Technology"},{"name":"Somruedee Sawatdiwong","dept":"International Business"},{"name":"Sirilerd Wongdama","dept":"Global Marketing"},{"name":"Methaporn Thongneramitchai","dept":"International Business"}];
+const T=KPI.target;
+const BAR_ORDER=["Q2 Review","Q1 Review","Setting Goals","Draft","No WDP"];
+const BAR_COLORS={"Q1 Review":"#059669","Q2 Review":"#7c3aed","Setting Goals":"#f59e0b","Draft":"#94a3b8","No WDP":"#e2e8f0"};
+const BAR_LABELS={"Q1 Review":"Q1 Updated","Q2 Review":"Q2 Updated","Setting Goals":"Setting Goals","Draft":"Draft","No WDP":"No WDP"};
+
+function col(v){return v>=80?"#059669":v>=60?"#2563eb":v>=40?"#d97706":"#dc2626";}
+function pp(n,d){return d>0?Math.round(n/d*100):0;}
+
+function initKPI(){
+  document.getElementById("kT").innerHTML=KPI.total+"<span class='fr'>/"+T+"</span>";
+  document.getElementById("kTS").textContent="Active "+KPI.active+" · Draft "+KPI.draft;
+  document.getElementById("kA").textContent=KPI.active+" ("+pp(KPI.active,T)+"%)";
+  document.getElementById("kD").textContent=KPI.draft+" ("+pp(KPI.draft,T)+"%)";
+  var q1q2=KPI.q1+KPI.q2;
+  document.getElementById("kQ1").textContent=q1q2+" ("+pp(q1q2,T)+"%)";
+  document.getElementById("kGL").textContent=KPI.goals+" ("+pp(KPI.goals,T)+"%)";
+  document.getElementById("kNW").textContent=KPI.noWDP+" ("+pp(KPI.noWDP,T)+"%)";
+  document.getElementById("bA").style.width=pp(KPI.active,T)+"%";
+  document.getElementById("bD").style.width=pp(KPI.draft,T)+"%";
+  document.getElementById("bQ1").style.width=pp(q1q2,T)+"%";
+  document.getElementById("bGL").style.width=pp(KPI.goals,T)+"%";
+  var list=document.getElementById("noWDPlist");
+  NO_WDP_NAMES.forEach(function(p){
+    var div=document.createElement("div");
+    div.style.cssText="font-size:12px;padding:5px 0;border-bottom:1px solid var(--bd);display:flex;gap:14px";
+    div.innerHTML="<span style='font-weight:500'>"+p.name+"</span><span style='color:var(--mu2);font-size:11px'>"+p.dept+"</span>";
+    list.appendChild(div);
+  });
+}
+
+function toggleNoWDP(){
+  var box=document.getElementById("noWDPbox"),btn=document.getElementById("kNWbtn");
+  if(box.style.display==="none"){
+    var pw=prompt("Please enter password to view names:");
+    if(pw!=="Welcome1"){alert("Incorrect password.");return;}
+    box.style.display="block";btn.innerHTML="hide names &#9650;";
+  } else {
+    box.style.display="none";btn.innerHTML="show names &#9660;";
+  }
+}
+
+Chart.register({
+  id:"barNote",
+  afterDraw:function(chart){
+    if(chart.canvas.id!=="dC")return;
+    var ctx=chart.ctx,h=chart.height;
+    ctx.save();ctx.font="10px Inter,sans-serif";
+    ctx.fillStyle="#94a3b8";ctx.textAlign="right";
+    ctx.fillText("* % in parentheses = Manager Approval rate (of Active employees)",chart.chartArea.right,h-4);
+    ctx.restore();
+  }
+});
+
+function initCharts(){
+  Chart.register(ChartDataLabels);
+  var sorted=[...DEPT_DATA].sort(function(a,b){return b.total-a.total;});
+
+  // Build stacked bar datasets — include No WDP as top grey segment
+  var barLabels=sorted.map(function(d){return d.dept+" ("+d.approvedPct+"%)";});
+  var activeStates=["Q2 Review","Q1 Review","Setting Goals","Draft"].filter(function(k){
+    return sorted.some(function(d){return (d.wdpStates[k]||0)>0;});
+  });
+  var datasets=activeStates.map(function(k){
+    return {label:BAR_LABELS[k],stack:"s",
+      backgroundColor:BAR_COLORS[k],borderSkipped:false,borderRadius:0,
+      data:sorted.map(function(d){return d.wdpStates[k]||0;})};
+  });
+  // Add No WDP segment
+  datasets.push({
+    label:"No WDP",stack:"s",backgroundColor:"#e2e8f0",
+    borderSkipped:false,borderRadius:[4,4,0,0],
+    data:sorted.map(function(d){return d.noWDPCount||0;})
+  });
+
+  new Chart(document.getElementById("dC"),{type:"bar",
+    data:{labels:barLabels,datasets:datasets},
+    options:{responsive:true,maintainAspectRatio:true,
+      layout:{padding:{bottom:18}},
+      plugins:{
+        legend:{position:"top",labels:{color:"#64748b",font:{size:11},padding:10,boxWidth:11}},
+        tooltip:{mode:"index",intersect:false,
+          callbacks:{
+            afterTitle:function(items){
+              var idx=items[0].dataIndex;
+              return "Total (incl. no WDP): "+(sorted[idx].total+sorted[idx].noWDPCount);
+            },
+            label:function(c){return c.raw>0?" "+c.dataset.label+": "+c.raw:null;},
+            filter:function(i){return i.raw>0;}
+          }},
+        datalabels:{display:false}
+      },
+      scales:{
+        x:{stacked:true,ticks:{color:"#64748b",font:{size:9},maxRotation:40,minRotation:30},grid:{display:false}},
+        y:{stacked:true,ticks:{color:"#64748b",font:{size:10}},grid:{color:"#f1f5f9"}}
+      }}});
+
+  // Donut — 13+148+6=167=100%
+  var dVals=[KPI.approved,KPI.pendingDonut,KPI.noWDP];
+  new Chart(document.getElementById("wC"),{type:"doughnut",
+    data:{labels:["Approved","Pending","No WDP yet"],
+      datasets:[{data:dVals,backgroundColor:["#059669","#2563eb","#94a3b8"],
+        borderWidth:3,borderColor:"#fff",hoverOffset:5}]},
+    options:{responsive:true,maintainAspectRatio:true,cutout:"58%",
+      plugins:{
+        legend:{position:"bottom",labels:{color:"#64748b",font:{size:11},padding:10,boxWidth:11,
+          generateLabels:function(chart){
+            return chart.data.labels.map(function(lbl,i){
+              var val=chart.data.datasets[0].data[i];
+              var p=pp(val,T);
+              return {text:lbl+" N="+val+" ("+p+"%)",
+                fillStyle:chart.data.datasets[0].backgroundColor[i],
+                strokeStyle:"#fff",lineWidth:1,index:i};
+            });
+          }}},
+        tooltip:{callbacks:{label:function(c){return " "+c.label+": N="+c.raw+" ("+pp(c.raw,T)+"%)";}}},
+        datalabels:{color:"#fff",font:{size:11,weight:"bold"},
+          formatter:function(val){
+            if(val===0)return null;
+            return "N="+val+"\n("+pp(val,T)+"%)";
+          },
+          textAlign:"center",
+          display:function(ctx){return ctx.dataset.data[ctx.dataIndex]>0;}}
+      }}});
+}
+
+var filtDepts=DEPT_DATA.slice(),sk="total",sd=-1,posF="";
+
+function initFilters(){
+  var depts=[...new Set(DEPT_DATA.map(function(d){return d.dept;}))].sort();
+  var wStates=[...new Set(DEPT_DATA.flatMap(function(d){return Object.keys(d.wdpStates);}))].sort();
+  var elD=document.getElementById("fD"),elW=document.getElementById("fW");
+  depts.forEach(function(v){elD.innerHTML+="<option value="+JSON.stringify(v)+">"+v+"</option>";});
+  wStates.forEach(function(v){elW.innerHTML+="<option value="+JSON.stringify(v)+">"+v+"</option>";});
+  ["fD","fW","fR"].forEach(function(id){document.getElementById(id).addEventListener("change",applyF);});
+  document.querySelectorAll(".pill").forEach(function(b){
+    b.addEventListener("click",function(){
+      document.querySelectorAll(".pill").forEach(function(x){x.classList.remove("on");});
+      b.classList.add("on");posF=b.dataset.g;applyF();
+    });
+  });
+}
+
+function applyF(){
+  var d=document.getElementById("fD").value,w=document.getElementById("fW").value;
+  filtDepts=DEPT_DATA.filter(function(x){
+    if(d&&x.dept!==d)return false;
+    if(w&&!(x.wdpStates[w]>0))return false;
+    return true;
+  });
+  filtDepts.sort(function(a,b){
+    return typeof a[sk]==="number"?(a[sk]-b[sk])*sd:String(a[sk]).localeCompare(String(b[sk]))*sd;
+  });
+  renderTbl();
+}
+
+function resetF(){
+  ["fD","fW","fR"].forEach(function(id){document.getElementById(id).value="";});
+  document.getElementById("sbox").value="";
+  document.querySelectorAll(".pill").forEach(function(b){b.classList.remove("on");});
+  document.querySelector(".pill[data-g='']").classList.add("on");
+  posF="";filtDepts=DEPT_DATA.slice().sort(function(a,b){return b.total-a.total;});
+  renderTbl();
+}
+
+function srt(k){
+  sd=sk===k?-sd:-1;sk=k;
+  document.querySelectorAll("th").forEach(function(t){t.classList.remove("sorted");});
+  var el=document.getElementById("th-"+k);if(el)el.classList.add("sorted");
+  applyF();
+}
+
+function makeProgressBar(label,val,max,color){
+  var p=pp(val,max);
+  return "<div class=\"pbar-row\"><div class=\"pbar-lbl\">"+label+"</div>"
+    +"<div class=\"pbar-track\"><div class=\"pbar-fill\" style=\"width:"+p+"%;background:"+color+"\"></div></div>"
+    +"<div class=\"pbar-pct\" style=\"color:"+color+"\">"+p+"%</div></div>";
+}
+
+function renderTbl(){
+  var srch=document.getElementById("sbox").value.toLowerCase();
+  var data=filtDepts.filter(function(d){return !srch||d.dept.toLowerCase().indexOf(srch)>=0;});
+  document.getElementById("rcntN").textContent=data.length;
+  var tbody=document.getElementById("tbody");
+  tbody.innerHTML="";
+  data.forEach(function(r,idx){
+    var pa=r.partsAvg;
+    var wdpHTML="<div class=\"pills\">";
+    if(r.activeCount>0) wdpHTML+="<span class=\"wp w-active\">Active: "+r.activeCount+"</span> ";
+    if(r.draftCount>0)  wdpHTML+="<span class=\"wp w-draft\">Draft: "+r.draftCount+"</span>";
+    if(r.noWDPCount>0)  wdpHTML+="<span class=\"wp\" style=\"background:#f1f5f9;color:#64748b\">No WDP: "+r.noWDPCount+"</span>";
+    wdpHTML+="</div>";
+    var q1c=(r.wdpStates["Q1 Review"]||0)+(r.wdpStates["Q2 Review"]||0);
+    var pbarHTML="<div class=\"pbar-wrap\">"
+      +makeProgressBar("Q1 Updated",q1c,r.total,"#059669")
+      +makeProgressBar("Approved",r.approvedCount,r.activeCount,"#2563eb")+"</div>";
+    var partHTML=["A","B","C","D","E"].map(function(p){
+      var v=pa[p],c=col(v);
+      return "<div class=\"pitem\"><div class=\"pitem-lbl\">Part "+p+"</div>"
+        +"<div class=\"pitem-val\" style=\"color:"+c+"\">"+v+"%</div>"
+        +"<div class=\"pitem-bar\"><div class=\"pitem-fill\" style=\"width:"+v+"%;background:"+c+"\"></div></div></div>";
+    }).join("");
+    var tr=document.createElement("tr");tr.className="rc";
+    (function(i2,t2){tr.onclick=function(){tog(i2,t2);};})(idx,tr);
+    tr.innerHTML="<td><strong>"+r.dept+"</strong></td>"
+      +"<td><span class=\"mono\">"+r.total+"</span></td>"
+      +"<td>"+wdpHTML+"</td><td>"+pbarHTML+"</td>";
+    var er=document.createElement("tr");er.className="er";er.id="ex"+idx;
+    er.innerHTML="<td class=\"ec\" colspan=\"4\"><div class=\"ei\">"
+      +"<div style=\"font-size:10px;color:var(--mu);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px\">"
+      +"Avg Part Completion — "+r.dept+" (n="+r.total+")</div>"
+      +"<div class=\"pg5\">"+partHTML+"</div></div></td>";
+    tbody.appendChild(tr);tbody.appendChild(er);
+  });
+  document.getElementById("pinf").textContent="Showing all "+data.length+" departments";
+  document.getElementById("pbtns").innerHTML="";
+}
+
+function tog(idx,tr){
+  var ex=document.getElementById("ex"+idx),op=ex.classList.contains("open");
+  document.querySelectorAll(".er.open").forEach(function(e){e.classList.remove("open");});
+  document.querySelectorAll(".rc.exp").forEach(function(e){e.classList.remove("exp");});
+  if(!op){ex.classList.add("open");tr.classList.add("exp");}
+}
+
+window.onload=function(){
+  document.getElementById("updt").textContent="Data as of "+new Date().toLocaleDateString("en-GB",{year:"numeric",month:"short",day:"numeric"});
+  initKPI();initCharts();initFilters();resetF();
+};
+</script>
+</body>
+</html>
