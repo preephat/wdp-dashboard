@@ -115,18 +115,20 @@ td{padding:9px 13px;vertical-align:middle}
     </div>
     <div class="kpi" style="--c:#7c3aed">
       <div class="kl">Q1 Updated</div><div class="kv" id="kQ1"></div>
-      <div class="ks">Player WDP State</div>
       <div class="kbar"><div class="kfill" id="bQ1" style="width:0;background:#7c3aed"></div></div>
     </div>
     <div class="kpi" style="--c:#d97706">
       <div class="kl">Setting Goals</div><div class="kv" id="kGL"></div>
-      <div class="ks">Player WDP State</div>
       <div class="kbar"><div class="kfill" id="bGL" style="width:0;background:#d97706"></div></div>
     </div>
     <div class="kpi" style="--c:#94a3b8">
       <div class="kl">No WDP Yet</div><div class="kv" id="kNW"></div>
-      <div class="ks">Not yet created</div>
+      <div class="ks"><span id="kNWbtn" style="cursor:pointer;color:var(--ac);text-decoration:underline;font-size:11px" onclick="toggleNoWDP()">show names &#9660;</span></div>
     </div>
+  </div>
+  <div id="noWDPbox" style="display:none;background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:14px 18px;margin-bottom:14px;box-shadow:var(--sh)">
+    <div style="font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Employees without WDP</div>
+    <div id="noWDPlist"></div>
   </div>
   <div class="cgrid" style="grid-template-columns:2fr 1fr">
     <div class="cc"><div class="ct">Player's WDP Status by Department</div><canvas id="dC" height="160"></canvas></div>
@@ -138,12 +140,6 @@ td{padding:9px 13px;vertical-align:middle}
       <select class="fsel" id="fD"><option value="">All</option></select>
       <span class="flbl">WDP State</span>
       <select class="fsel" id="fW"><option value="">All</option></select>
-      <span class="flbl">Record</span>
-      <select class="fsel" id="fR">
-        <option value="">Active &amp; Draft</option>
-        <option value="Active">Active only</option>
-        <option value="Draft">Draft only</option>
-      </select>
       <button class="frst" onclick="resetF()">&#8635; Reset</button>
       <span class="rcnt"><strong id="rcntN">0</strong> depts</span>
     </div>
@@ -179,119 +175,45 @@ td{padding:9px 13px;vertical-align:middle}
 <div class="footer">E-WDP Dashboard 2026 &middot; Department-level view &middot; No individual data displayed</div>
 <script>
 const KPI={"total":161,"active":143,"draft":18,"approved":13,"q1":118,"q2":1,"goals":42,"noWDP":6,"target":167,"pendingDonut":148};
-const DEPT_DATA=[{"dept":"International Business","total":27,"activeCount":25,"draftCount":2,"wdpStates":{"Q1 Review":23,"Draft":2,"Setting Goals":2},"approvedCount":2,"pendingCount":23,"approvedPct":8,"noWDPCount":2,"partsAvg":{"A":98.5,"B":91.8,"C":88.1,"D":88.1,"E":92.2}},{"dept":"Accounting","total":16,"activeCount":13,"draftCount":3,"wdpStates":{"Q1 Review":12,"Draft":3,"Setting Goals":1},"approvedCount":1,"pendingCount":12,"approvedPct":8,"noWDPCount":0,"partsAvg":{"A":93.4,"B":83.5,"C":52.7,"D":72.4,"E":77.8}},{"dept":"Thailand","total":14,"activeCount":11,"draftCount":3,"wdpStates":{"Q1 Review":11,"Draft":3},"approvedCount":2,"pendingCount":9,"approvedPct":18,"noWDPCount":0,"partsAvg":{"A":95.1,"B":81.7,"C":73.2,"D":74.3,"E":79.3}},{"dept":"Information Technology","total":10,"activeCount":9,"draftCount":1,"wdpStates":{"Setting Goals":7,"Q2 Review":1,"Draft":1,"Q1 Review":1},"approvedCount":1,"pendingCount":8,"approvedPct":11,"noWDPCount":1,"partsAvg":{"A":80.1,"B":73.7,"C":76.0,"D":67.2,"E":82.0}},{"dept":"Procurement","total":8,"activeCount":8,"draftCount":0,"wdpStates":{"Setting Goals":5,"Q1 Review":3},"approvedCount":0,"pendingCount":8,"approvedPct":0,"noWDPCount":0,"partsAvg":{"A":81.2,"B":73.2,"C":75.0,"D":74.5,"E":97.5}},{"dept":"Product Innovation - Thailand","total":8,"activeCount":7,"draftCount":1,"wdpStates":{"Draft":1,"Q1 Review":7},"approvedCount":2,"pendingCount":5,"approvedPct":29,"noWDPCount":0,"partsAvg":{"A":98.2,"B":96.1,"C":97.4,"D":93.5,"E":91.2}},{"dept":"CA/CS/Legal","total":8,"activeCount":8,"draftCount":0,"wdpStates":{"Q1 Review":8},"approvedCount":2,"pendingCount":6,"approvedPct":25,"noWDPCount":0,"partsAvg":{"A":94.1,"B":90.9,"C":60.1,"D":63.8,"E":72.5}},{"dept":"Global Marketing","total":8,"activeCount":8,"draftCount":0,"wdpStates":{"Q1 Review":8},"approvedCount":0,"pendingCount":8,"approvedPct":0,"noWDPCount":1,"partsAvg":{"A":96.2,"B":92.9,"C":60.0,"D":86.5,"E":97.5}},{"dept":"Strategy and Finance","total":7,"activeCount":7,"draftCount":0,"wdpStates":{"Q1 Review":5,"Setting Goals":2},"approvedCount":0,"pendingCount":7,"approvedPct":0,"noWDPCount":1,"partsAvg":{"A":92.0,"B":67.3,"C":64.0,"D":67.1,"E":82.9}},{"dept":"People HQ","total":7,"activeCount":7,"draftCount":0,"wdpStates":{"Setting Goals":2,"Q1 Review":5},"approvedCount":1,"pendingCount":6,"approvedPct":14,"noWDPCount":0,"partsAvg":{"A":92.7,"B":80.4,"C":60.9,"D":51.4,"E":54.3}},{"dept":"Commercial Excellence","total":6,"activeCount":6,"draftCount":0,"wdpStates":{"Q1 Review":5,"Setting Goals":1},"approvedCount":0,"pendingCount":6,"approvedPct":0,"noWDPCount":1,"partsAvg":{"A":78.0,"B":67.5,"C":56.7,"D":66.5,"E":70.0}},{"dept":"Research Development Innovation","total":6,"activeCount":4,"draftCount":2,"wdpStates":{"Setting Goals":4,"Draft":2},"approvedCount":1,"pendingCount":3,"approvedPct":25,"noWDPCount":0,"partsAvg":{"A":72.0,"B":63.8,"C":51.7,"D":48.0,"E":66.7}},{"dept":"Global Online Market","total":6,"activeCount":5,"draftCount":1,"wdpStates":{"Q1 Review":5,"Draft":1},"approvedCount":0,"pendingCount":5,"approvedPct":0,"noWDPCount":0,"partsAvg":{"A":96.3,"B":78.2,"C":13.3,"D":75.3,"E":83.3}},{"dept":"Research Development Center","total":5,"activeCount":4,"draftCount":1,"wdpStates":{"Draft":1,"Setting Goals":4},"approvedCount":0,"pendingCount":4,"approvedPct":0,"noWDPCount":0,"partsAvg":{"A":74.4,"B":65.8,"C":80.0,"D":84.0,"E":96.0}},{"dept":"Thailand Marketing","total":5,"activeCount":4,"draftCount":1,"wdpStates":{"Q1 Review":3,"Draft":1,"Setting Goals":1},"approvedCount":0,"pendingCount":4,"approvedPct":0,"noWDPCount":0,"partsAvg":{"A":90.2,"B":84.6,"C":60.0,"D":80.0,"E":88.0}},{"dept":"Cost Accounting","total":4,"activeCount":3,"draftCount":1,"wdpStates":{"Q1 Review":3,"Draft":1},"approvedCount":0,"pendingCount":3,"approvedPct":0,"noWDPCount":0,"partsAvg":{"A":85.8,"B":74.8,"C":87.5,"D":97.5,"E":100.0}},{"dept":"Supply Chain Management","total":4,"activeCount":2,"draftCount":2,"wdpStates":{"Setting Goals":1,"Draft":2,"Q1 Review":1},"approvedCount":0,"pendingCount":2,"approvedPct":0,"noWDPCount":0,"partsAvg":{"A":83.2,"B":66.0,"C":80.0,"D":74.0,"E":95.0}},{"dept":"Product Innovation - Global","total":4,"activeCount":4,"draftCount":0,"wdpStates":{"Setting Goals":1,"Q1 Review":3},"approvedCount":0,"pendingCount":4,"approvedPct":0,"noWDPCount":0,"partsAvg":{"A":84.5,"B":81.0,"C":75.0,"D":66.5,"E":70.0}},{"dept":"Management Office","total":3,"activeCount":3,"draftCount":0,"wdpStates":{"Setting Goals":3},"approvedCount":0,"pendingCount":3,"approvedPct":0,"noWDPCount":1,"partsAvg":{"A":49.0,"B":41.7,"C":26.7,"D":26.7,"E":13.3}},{"dept":"In Market - Philippines","total":3,"activeCount":3,"draftCount":0,"wdpStates":{"Setting Goals":2,"Q1 Review":1},"approvedCount":0,"pendingCount":3,"approvedPct":0,"noWDPCount":0,"partsAvg":{"A":80.0,"B":80.3,"C":88.3,"D":75.3,"E":56.7}},{"dept":"Sustainability Management & Corporate Communications","total":2,"activeCount":2,"draftCount":0,"wdpStates":{"Q1 Review":2},"approvedCount":1,"pendingCount":1,"approvedPct":50,"noWDPCount":0,"partsAvg":{"A":92.0,"B":75.0,"C":90.0,"D":56.0,"E":50.0}}];
-const NO_WDP_NAMES=[];
+const DEPT_DATA=[{"dept":"Accounting","total":16,"activeCount":13,"draftCount":3,"wdpStates":{"Q1 Review":12,"Draft":3,"Setting Goals":1},"approvedCount":1,"pendingCount":12,"approvedPct":8,"noWDPCount":0,"posLevels":{"Spec/Exec":13,"VP":1,"AVP":1,"Division Manager":1},"partsAvg":{"A":93.4,"B":83.5,"C":52.7,"D":72.4,"E":77.8}},{"dept":"CA/CS/Legal","total":8,"activeCount":8,"draftCount":0,"wdpStates":{"Q1 Review":8},"approvedCount":2,"pendingCount":6,"approvedPct":25,"noWDPCount":0,"posLevels":{"Spec/Exec":6,"C-Level":1,"Division Manager":1},"partsAvg":{"A":94.1,"B":90.9,"C":60.1,"D":63.8,"E":72.5}},{"dept":"Commercial Excellence","total":6,"activeCount":6,"draftCount":0,"wdpStates":{"Q1 Review":5,"Setting Goals":1},"approvedCount":0,"pendingCount":6,"approvedPct":0,"noWDPCount":1,"posLevels":{"Manager":4,"Division Manager":1,"AVP":1},"partsAvg":{"A":78.0,"B":67.5,"C":56.7,"D":66.5,"E":70.0}},{"dept":"Cost Accounting","total":4,"activeCount":3,"draftCount":1,"wdpStates":{"Q1 Review":3,"Draft":1},"approvedCount":0,"pendingCount":3,"approvedPct":0,"noWDPCount":0,"posLevels":{"Division Manager":1,"AVP":1,"Spec/Exec":2},"partsAvg":{"A":85.8,"B":74.8,"C":87.5,"D":97.5,"E":100.0}},{"dept":"Global Marketing","total":8,"activeCount":8,"draftCount":0,"wdpStates":{"Q1 Review":8},"approvedCount":0,"pendingCount":8,"approvedPct":0,"noWDPCount":1,"posLevels":{"Division Manager":2,"Spec/Exec":3,"VP":1,"Manager":1,"AVP":1},"partsAvg":{"A":96.2,"B":92.9,"C":60.0,"D":86.5,"E":97.5}},{"dept":"Global Online Market","total":6,"activeCount":5,"draftCount":1,"wdpStates":{"Q1 Review":5,"Draft":1},"approvedCount":0,"pendingCount":5,"approvedPct":0,"noWDPCount":0,"posLevels":{"Spec/Exec":3,"Manager":2,"AVP":1},"partsAvg":{"A":96.3,"B":78.2,"C":13.3,"D":75.3,"E":83.3}},{"dept":"In Market - Philippines","total":3,"activeCount":3,"draftCount":0,"wdpStates":{"Setting Goals":2,"Q1 Review":1},"approvedCount":0,"pendingCount":3,"approvedPct":0,"noWDPCount":0,"posLevels":{"VP":1,"Manager":1,"Division Manager":1},"partsAvg":{"A":80.0,"B":80.3,"C":88.3,"D":75.3,"E":56.7}},{"dept":"Information Technology","total":10,"activeCount":9,"draftCount":1,"wdpStates":{"Setting Goals":7,"Q2 Review":1,"Draft":1,"Q1 Review":1},"approvedCount":1,"pendingCount":8,"approvedPct":11,"noWDPCount":1,"posLevels":{"Spec/Exec":8,"Manager":1,"Division Manager":1},"partsAvg":{"A":80.1,"B":73.7,"C":76.0,"D":67.2,"E":82.0}},{"dept":"International Business","total":27,"activeCount":25,"draftCount":2,"wdpStates":{"Q1 Review":23,"Draft":2,"Setting Goals":2},"approvedCount":2,"pendingCount":23,"approvedPct":8,"noWDPCount":2,"posLevels":{"AVP":2,"Spec/Exec":12,"Manager":10,"VP":1,"Division Manager":2},"partsAvg":{"A":98.5,"B":91.8,"C":88.1,"D":88.1,"E":92.2}},{"dept":"Management Office","total":3,"activeCount":3,"draftCount":0,"wdpStates":{"Setting Goals":3},"approvedCount":0,"pendingCount":3,"approvedPct":0,"noWDPCount":1,"posLevels":{"C-Level":3},"partsAvg":{"A":49.0,"B":41.7,"C":26.7,"D":26.7,"E":13.3}},{"dept":"People HQ","total":7,"activeCount":7,"draftCount":0,"wdpStates":{"Setting Goals":2,"Q1 Review":5},"approvedCount":1,"pendingCount":6,"approvedPct":14,"noWDPCount":0,"posLevels":{"AVP":2,"Manager":1,"Spec/Exec":4},"partsAvg":{"A":92.7,"B":80.4,"C":60.9,"D":51.4,"E":54.3}},{"dept":"Procurement","total":8,"activeCount":8,"draftCount":0,"wdpStates":{"Setting Goals":5,"Q1 Review":3},"approvedCount":0,"pendingCount":8,"approvedPct":0,"noWDPCount":0,"posLevels":{"AVP":1,"Spec/Exec":7},"partsAvg":{"A":81.2,"B":73.2,"C":75.0,"D":74.5,"E":97.5}},{"dept":"Product Innovation - Global","total":4,"activeCount":4,"draftCount":0,"wdpStates":{"Setting Goals":1,"Q1 Review":3},"approvedCount":0,"pendingCount":4,"approvedPct":0,"noWDPCount":0,"posLevels":{"AVP":1,"Spec/Exec":2,"Manager":1},"partsAvg":{"A":84.5,"B":81.0,"C":75.0,"D":66.5,"E":70.0}},{"dept":"Product Innovation - Thailand","total":8,"activeCount":7,"draftCount":1,"wdpStates":{"Draft":1,"Q1 Review":7},"approvedCount":2,"pendingCount":5,"approvedPct":29,"noWDPCount":0,"posLevels":{"VP":1,"AVP":1,"Manager":4,"Spec/Exec":2},"partsAvg":{"A":98.2,"B":96.1,"C":97.4,"D":93.5,"E":91.2}},{"dept":"Research Development Center","total":5,"activeCount":4,"draftCount":1,"wdpStates":{"Draft":1,"Setting Goals":4},"approvedCount":0,"pendingCount":4,"approvedPct":0,"noWDPCount":0,"posLevels":{"Spec/Exec":5},"partsAvg":{"A":74.4,"B":65.8,"C":80.0,"D":84.0,"E":96.0}},{"dept":"Research Development Innovation","total":6,"activeCount":4,"draftCount":2,"wdpStates":{"Setting Goals":4,"Draft":2},"approvedCount":1,"pendingCount":3,"approvedPct":25,"noWDPCount":0,"posLevels":{"AVP":1,"Spec/Exec":4,"C-Level":1},"partsAvg":{"A":72.0,"B":63.8,"C":51.7,"D":48.0,"E":66.7}},{"dept":"Strategy and Finance","total":7,"activeCount":7,"draftCount":0,"wdpStates":{"Q1 Review":5,"Setting Goals":2},"approvedCount":0,"pendingCount":7,"approvedPct":0,"noWDPCount":1,"posLevels":{"Spec/Exec":5,"Division Manager":1,"Manager":1},"partsAvg":{"A":92.0,"B":67.3,"C":64.0,"D":67.1,"E":82.9}},{"dept":"Supply Chain Management","total":4,"activeCount":2,"draftCount":2,"wdpStates":{"Setting Goals":1,"Draft":2,"Q1 Review":1},"approvedCount":0,"pendingCount":2,"approvedPct":0,"noWDPCount":0,"posLevels":{"VP":1,"Spec/Exec":3},"partsAvg":{"A":83.2,"B":66.0,"C":80.0,"D":74.0,"E":95.0}},{"dept":"Sustainability Management & Corporate Communications","total":2,"activeCount":2,"draftCount":0,"wdpStates":{"Q1 Review":2},"approvedCount":1,"pendingCount":1,"approvedPct":50,"noWDPCount":0,"posLevels":{"C-Level":1,"Spec/Exec":1},"partsAvg":{"A":92.0,"B":75.0,"C":90.0,"D":56.0,"E":50.0}},{"dept":"Thailand","total":14,"activeCount":11,"draftCount":3,"wdpStates":{"Q1 Review":11,"Draft":3},"approvedCount":2,"pendingCount":9,"approvedPct":18,"noWDPCount":0,"posLevels":{"Manager":5,"Division Manager":2,"VP":1,"Spec/Exec":6},"partsAvg":{"A":95.1,"B":81.7,"C":73.2,"D":74.3,"E":79.3}},{"dept":"Thailand Marketing","total":5,"activeCount":4,"draftCount":1,"wdpStates":{"Q1 Review":3,"Draft":1,"Setting Goals":1},"approvedCount":0,"pendingCount":4,"approvedPct":0,"noWDPCount":0,"posLevels":{"Manager":3,"VP":1,"Spec/Exec":1},"partsAvg":{"A":90.2,"B":84.6,"C":60.0,"D":80.0,"E":88.0}}];
+const NO_WDP_NAMES=[{"name":"Sureerat","dept":"Strategy and Finance"},{"name":"Kanyaporn","dept":"Management Office"},{"name":"Thanawat","dept":"Commercial Excellence"},{"name":"Nattapat","dept":"Information Technology"},{"name":"Somruedee","dept":"International Business"},{"name":"Sirilerd","dept":"Global Marketing"},{"name":"Methaporn","dept":"International Business"}];
+
 const T=KPI.target;
 const BAR_ORDER=["Q2 Review","Q1 Review","Setting Goals","Draft","No WDP"];
 const BAR_COLORS={"Q1 Review":"#059669","Q2 Review":"#7c3aed","Setting Goals":"#f59e0b","Draft":"#94a3b8","No WDP":"#e2e8f0"};
 const BAR_LABELS={"Q1 Review":"Q1 Updated","Q2 Review":"Q2 Updated","Setting Goals":"Setting Goals","Draft":"Draft","No WDP":"No WDP"};
+const DONUT_COLORS=["#059669","#2563eb","#94a3b8"];
+const POS_LEVELS=["VP","AVP","Division Manager","Manager","Spec/Exec","C-Level","Other"];
 
 function col(v){return v>=80?"#059669":v>=60?"#2563eb":v>=40?"#d97706":"#dc2626";}
 function pp(n,d){return d>0?Math.round(n/d*100):0;}
 
-function initKPI(){
-  document.getElementById("kT").innerHTML=KPI.total+"<span class='fr'>/"+T+"</span>";
-  document.getElementById("kTS").textContent="Active "+KPI.active+" · Draft "+KPI.draft;
-  document.getElementById("kA").textContent=KPI.active+" ("+pp(KPI.active,T)+"%)";
-  document.getElementById("kD").textContent=KPI.draft+" ("+pp(KPI.draft,T)+"%)";
-  var q1q2=KPI.q1+KPI.q2;
-  document.getElementById("kQ1").textContent=q1q2+" ("+pp(q1q2,T)+"%)";
-  document.getElementById("kGL").textContent=KPI.goals+" ("+pp(KPI.goals,T)+"%)";
-  document.getElementById("kNW").textContent=KPI.noWDP+" ("+pp(KPI.noWDP,T)+"%)";
-  document.getElementById("bA").style.width=pp(KPI.active,T)+"%";
-  document.getElementById("bD").style.width=pp(KPI.draft,T)+"%";
-  document.getElementById("bQ1").style.width=pp(q1q2,T)+"%";
-  document.getElementById("bGL").style.width=pp(KPI.goals,T)+"%";
+// Filter state
+var filtDepts=DEPT_DATA.slice().sort(function(a,b){return a.dept.localeCompare(b.dept);});
+var activePos="";
 
+function applyF(){
+  var dVal=document.getElementById("fD").value;
+  var wVal=document.getElementById("fW").value;
+  filtDepts=DEPT_DATA.filter(function(x){
+    if(dVal&&x.dept!==dVal)return false;
+    if(wVal&&!(x.wdpStates[wVal]>0))return false;
+    // Position level filter — filter depts that have at least 1 person at that level
+    if(activePos&&!(x.posLevels[activePos]>0))return false;
+    return true;
+  }).sort(function(a,b){return a.dept.localeCompare(b.dept);});
+  renderTbl();
 }
 
-
-
-Chart.register({
-  id:"barNote",
-  afterDraw:function(chart){
-    if(chart.canvas.id!=="dC")return;
-    var ctx=chart.ctx,h=chart.height;
-    ctx.save();ctx.font="10px Inter,sans-serif";
-    ctx.fillStyle="#94a3b8";ctx.textAlign="right";
-    ctx.fillText("* % in parentheses = Manager Approval rate (of Active employees)",chart.chartArea.right,h-4);
-    ctx.restore();
-  }
-});
-
-function initCharts(){
-  Chart.register(ChartDataLabels);
-  var sorted=[...DEPT_DATA].sort(function(a,b){return b.total-a.total;});
-
-  // Build stacked bar datasets — include No WDP as top grey segment
-  var barLabels=sorted.map(function(d){return d.dept+" ("+d.approvedPct+"%)";});
-  var activeStates=["Q2 Review","Q1 Review","Setting Goals","Draft"].filter(function(k){
-    return sorted.some(function(d){return (d.wdpStates[k]||0)>0;});
-  });
-  var datasets=activeStates.map(function(k){
-    return {label:BAR_LABELS[k],stack:"s",
-      backgroundColor:BAR_COLORS[k],borderSkipped:false,borderRadius:0,
-      data:sorted.map(function(d){return d.wdpStates[k]||0;})};
-  });
-  // Add No WDP segment
-  datasets.push({
-    label:"No WDP",stack:"s",backgroundColor:"#e2e8f0",
-    borderSkipped:false,borderRadius:[4,4,0,0],
-    data:sorted.map(function(d){return d.noWDPCount||0;})
-  });
-
-  new Chart(document.getElementById("dC"),{type:"bar",
-    data:{labels:barLabels,datasets:datasets},
-    options:{responsive:true,maintainAspectRatio:true,
-      layout:{padding:{bottom:18}},
-      plugins:{
-        legend:{position:"top",labels:{color:"#64748b",font:{size:11},padding:10,boxWidth:11}},
-        tooltip:{mode:"index",intersect:false,
-          callbacks:{
-            afterTitle:function(items){
-              var idx=items[0].dataIndex;
-              return "Total (incl. no WDP): "+(sorted[idx].total+sorted[idx].noWDPCount);
-            },
-            label:function(c){return c.raw>0?" "+c.dataset.label+": "+c.raw:null;},
-            filter:function(i){return i.raw>0;}
-          }},
-        datalabels:{display:false}
-      },
-      scales:{
-        x:{stacked:true,ticks:{color:"#64748b",font:{size:9},maxRotation:40,minRotation:30},grid:{display:false}},
-        y:{stacked:true,ticks:{color:"#64748b",font:{size:10}},grid:{color:"#f1f5f9"}}
-      }}});
-
-  // Donut — 13+148+6=167=100%
-  var dVals=[KPI.approved,KPI.pendingDonut,KPI.noWDP];
-  new Chart(document.getElementById("wC"),{type:"doughnut",
-    data:{labels:["Approved","Pending","No WDP yet"],
-      datasets:[{data:dVals,backgroundColor:["#059669","#2563eb","#94a3b8"],
-        borderWidth:3,borderColor:"#fff",hoverOffset:5}]},
-    options:{responsive:true,maintainAspectRatio:true,cutout:"58%",
-      plugins:{
-        legend:{position:"bottom",labels:{color:"#64748b",font:{size:11},padding:10,boxWidth:11,
-          generateLabels:function(chart){
-            return chart.data.labels.map(function(lbl,i){
-              var val=chart.data.datasets[0].data[i];
-              var p=pp(val,T);
-              return {text:lbl+" N="+val+" ("+p+"%)",
-                fillStyle:chart.data.datasets[0].backgroundColor[i],
-                strokeStyle:"#fff",lineWidth:1,index:i};
-            });
-          }}},
-        tooltip:{callbacks:{label:function(c){return " "+c.label+": N="+c.raw+" ("+pp(c.raw,T)+"%)";}}},
-        datalabels:{color:"#fff",font:{size:11,weight:"bold"},
-          formatter:function(val){
-            if(val===0)return null;
-            return "N="+val+"\n("+pp(val,T)+"%)";
-          },
-          textAlign:"center",
-          display:function(ctx){return ctx.dataset.data[ctx.dataIndex]>0;}}
-      }}});
+function resetF(){
+  ["fD","fW"].forEach(function(id){document.getElementById(id).value="";});
+  var sb=document.getElementById("sbox");if(sb)sb.value="";
+  document.querySelectorAll(".pill").forEach(function(b){b.classList.remove("on");});
+  document.querySelector(".pill[data-g='']").classList.add("on");
+  activePos="";
+  filtDepts=DEPT_DATA.slice().sort(function(a,b){return a.dept.localeCompare(b.dept);});
+  renderTbl();
 }
-
-var filtDepts=DEPT_DATA.slice(),sk="total",sd=-1,posF="";
 
 function initFilters(){
   var depts=[...new Set(DEPT_DATA.map(function(d){return d.dept;}))].sort();
@@ -299,57 +221,129 @@ function initFilters(){
   var elD=document.getElementById("fD"),elW=document.getElementById("fW");
   depts.forEach(function(v){elD.innerHTML+="<option value="+JSON.stringify(v)+">"+v+"</option>";});
   wStates.forEach(function(v){elW.innerHTML+="<option value="+JSON.stringify(v)+">"+v+"</option>";});
-  ["fD","fW","fR"].forEach(function(id){document.getElementById(id).addEventListener("change",applyF);});
+  elD.addEventListener("change",applyF);
+  elW.addEventListener("change",applyF);
   document.querySelectorAll(".pill").forEach(function(b){
     b.addEventListener("click",function(){
       document.querySelectorAll(".pill").forEach(function(x){x.classList.remove("on");});
-      b.classList.add("on");posF=b.dataset.g;applyF();
+      b.classList.add("on");
+      activePos=b.dataset.g;
+      applyF();
     });
   });
 }
 
-function applyF(){
-  var d=document.getElementById("fD").value,w=document.getElementById("fW").value;
-  filtDepts=DEPT_DATA.filter(function(x){
-    if(d&&x.dept!==d)return false;
-    if(w&&!(x.wdpStates[w]>0))return false;
-    return true;
-  });
-  filtDepts.sort(function(a,b){
-    return typeof a[sk]==="number"?(a[sk]-b[sk])*sd:String(a[sk]).localeCompare(String(b[sk]))*sd;
-  });
-  renderTbl();
-}
-
-function resetF(){
-  ["fD","fW","fR"].forEach(function(id){document.getElementById(id).value="";});
-  document.getElementById("sbox").value="";
-  document.querySelectorAll(".pill").forEach(function(b){b.classList.remove("on");});
-  document.querySelector(".pill[data-g='']").classList.add("on");
-  posF="";filtDepts=DEPT_DATA.slice().sort(function(a,b){return b.total-a.total;});
-  renderTbl();
-}
-
-function srt(k){
-  sd=sk===k?-sd:-1;sk=k;
-  document.querySelectorAll("th").forEach(function(t){t.classList.remove("sorted");});
-  var el=document.getElementById("th-"+k);if(el)el.classList.add("sorted");
-  applyF();
-}
-
-function makeProgressBar(label,val,max,color){
+function makePbar(label,val,max,color){
   var p=pp(val,max);
   return "<div class=\"pbar-row\"><div class=\"pbar-lbl\">"+label+"</div>"
     +"<div class=\"pbar-track\"><div class=\"pbar-fill\" style=\"width:"+p+"%;background:"+color+"\"></div></div>"
     +"<div class=\"pbar-pct\" style=\"color:"+color+"\">"+p+"%</div></div>";
 }
 
+function partHTML(pa){
+  return ["A","B","C","D","E"].map(function(p){
+    var v=pa[p],c=col(v);
+    return "<div class=\"pitem\"><div class=\"pitem-lbl\">Part "+p+"</div>"
+      +"<div class=\"pitem-val\" style=\"color:"+c+"\">"+v+"%</div>"
+      +"<div class=\"pitem-bar\"><div class=\"pitem-fill\" style=\"width:"+v+"%;background:"+c+"\"></div></div></div>";
+  }).join("");
+}
+
+function toggleNoWDP(){
+  var box=document.getElementById("noWDPbox"),btn=document.getElementById("kNWbtn");
+  if(box.style.display==="none"){
+    var pw=prompt("Please enter password to view names:");
+    if(pw!=="Welcome1"){alert("Incorrect password.");return;}
+    box.style.display="block";btn.innerHTML="hide names &#9650;";
+  } else {
+    box.style.display="none";btn.innerHTML="show names &#9660;";
+  }
+}
+
+function initKPI(){
+  var fmt=function(n,label){return n+' <span style="font-size:13px;color:var(--mu2);font-weight:400">/ '+T+'</span> <span style="font-size:13px;font-weight:500;color:var(--mu)">('+pp(n,T)+'%)</span>';};
+  document.getElementById("kT").innerHTML=KPI.total+' <span style="font-size:14px;color:rgba(255,255,255,.65);font-weight:400">/ '+T+'</span> <span style="font-size:14px;font-weight:500;color:rgba(255,255,255,.85)">('+pp(KPI.total,T)+'%)</span>';
+  document.getElementById("kTS").textContent="Active "+KPI.active+" · Draft "+KPI.draft;
+  document.getElementById("kA").innerHTML=fmt(KPI.active);
+  document.getElementById("kD").innerHTML=fmt(KPI.draft);
+  var q=KPI.q1+KPI.q2;
+  document.getElementById("kQ1").innerHTML=fmt(q);
+  document.getElementById("kGL").innerHTML=fmt(KPI.goals);
+  document.getElementById("kNW").innerHTML=KPI.noWDP+' <span style="font-size:13px;color:var(--mu2);font-weight:400">/ '+T+'</span> <span style="font-size:13px;font-weight:500;color:var(--mu)">('+pp(KPI.noWDP,T)+'%)</span>';
+  document.getElementById("bA").style.width=pp(KPI.active,T)+"%";
+  document.getElementById("bD").style.width=pp(KPI.draft,T)+"%";
+  document.getElementById("bQ1").style.width=pp(q,T)+"%";
+  document.getElementById("bGL").style.width=pp(KPI.goals,T)+"%";
+  // No WDP list
+  var list=document.getElementById("noWDPlist");
+  NO_WDP_NAMES.forEach(function(p){
+    var div=document.createElement("div");
+    div.style.cssText="font-size:12px;padding:5px 0;border-bottom:1px solid var(--bd);display:flex;gap:14px";
+    div.innerHTML="<span style='font-weight:600'>"+p.name+"</span><span style='color:var(--mu2);font-size:11px'>"+p.dept+"</span>";
+    list.appendChild(div);
+  });
+}
+
+Chart.register({id:"barNote",afterDraw:function(chart){
+  if(chart.canvas.id!=="dC")return;
+  var ctx=chart.ctx;
+  ctx.save();ctx.font="10px Inter,sans-serif";ctx.fillStyle="#94a3b8";ctx.textAlign="right";
+  ctx.fillText("* % in parentheses = Manager Approval rate",chart.chartArea.right,chart.height-4);
+  ctx.restore();
+}});
+
+function initCharts(){
+  Chart.register(ChartDataLabels);
+  var sorted=[...DEPT_DATA].sort(function(a,b){return a.dept.localeCompare(b.dept);});
+  var barLabels=sorted.map(function(d){return d.dept+" ("+d.approvedPct+"%)";});
+  var activeStates=["Q2 Review","Q1 Review","Setting Goals","Draft"].filter(function(k){
+    return sorted.some(function(d){return (d.wdpStates[k]||0)>0;});
+  });
+  var datasets=activeStates.map(function(k){
+    return {label:BAR_LABELS[k],stack:"s",backgroundColor:BAR_COLORS[k],borderSkipped:false,borderRadius:0,
+      data:sorted.map(function(d){return d.wdpStates[k]||0;})};
+  });
+  datasets.push({label:"No WDP",stack:"s",backgroundColor:"#e2e8f0",borderSkipped:false,borderRadius:[4,4,0,0],
+    data:sorted.map(function(d){return d.noWDPCount||0;})});
+  new Chart(document.getElementById("dC"),{type:"bar",data:{labels:barLabels,datasets:datasets},
+    options:{responsive:true,maintainAspectRatio:true,layout:{padding:{bottom:16}},
+      plugins:{
+        legend:{position:"top",labels:{color:"#64748b",font:{size:11},padding:10,boxWidth:11}},
+        tooltip:{mode:"index",intersect:false,callbacks:{
+          afterTitle:function(items){return "Total: "+items.reduce(function(s,i){return s+i.raw;},0);},
+          label:function(c){return c.raw>0?" "+c.dataset.label+": "+c.raw:null;},
+          filter:function(i){return i.raw>0;}}},
+        datalabels:{display:false}},
+      scales:{
+        x:{stacked:true,ticks:{color:"#64748b",font:{size:9},maxRotation:40,minRotation:30},grid:{display:false}},
+        y:{stacked:true,ticks:{color:"#64748b",font:{size:10}},grid:{color:"#f1f5f9"}}
+      }}});
+  var dVals=[KPI.approved,KPI.pendingDonut,KPI.noWDP];
+  new Chart(document.getElementById("wC"),{type:"doughnut",
+    data:{labels:["Approved","Pending","No WDP yet"],
+      datasets:[{data:dVals,backgroundColor:DONUT_COLORS,borderWidth:3,borderColor:"#fff",hoverOffset:5}]},
+    options:{responsive:true,maintainAspectRatio:true,cutout:"58%",
+      plugins:{
+        legend:{position:"bottom",labels:{color:"#64748b",font:{size:11},padding:10,boxWidth:11,
+          generateLabels:function(chart){
+            return chart.data.labels.map(function(lbl,i){
+              var val=chart.data.datasets[0].data[i];
+              return {text:lbl+" "+val+"/"+T+" ("+pp(val,T)+"%)",
+                fillStyle:DONUT_COLORS[i],strokeStyle:"#fff",lineWidth:1,index:i};
+            });
+          }}},
+        tooltip:{callbacks:{label:function(c){return " "+c.label+": "+c.raw+"/"+T+" ("+pp(c.raw,T)+"%)";}}},
+        datalabels:{color:"#fff",font:{size:11,weight:"bold"},
+          formatter:function(val){if(val===0)return null;return "N="+val+"\n("+pp(val,T)+"%)";},
+          textAlign:"center",display:function(ctx){return ctx.dataset.data[ctx.dataIndex]>0;}}
+      }}});
+}
+
 function renderTbl(){
   var srch=document.getElementById("sbox").value.toLowerCase();
   var data=filtDepts.filter(function(d){return !srch||d.dept.toLowerCase().indexOf(srch)>=0;});
   document.getElementById("rcntN").textContent=data.length;
-  var tbody=document.getElementById("tbody");
-  tbody.innerHTML="";
+  var tbody=document.getElementById("tbody");tbody.innerHTML="";
   data.forEach(function(r,idx){
     var pa=r.partsAvg;
     var wdpHTML="<div class=\"pills\">";
@@ -358,25 +352,15 @@ function renderTbl(){
     if(r.noWDPCount>0)  wdpHTML+="<span class=\"wp\" style=\"background:#f1f5f9;color:#64748b\">No WDP: "+r.noWDPCount+"</span>";
     wdpHTML+="</div>";
     var q1c=(r.wdpStates["Q1 Review"]||0)+(r.wdpStates["Q2 Review"]||0);
-    var pbarHTML="<div class=\"pbar-wrap\">"
-      +makeProgressBar("Q1 Updated",q1c,r.total,"#059669")
-      +makeProgressBar("Approved",r.approvedCount,r.activeCount,"#2563eb")+"</div>";
-    var partHTML=["A","B","C","D","E"].map(function(p){
-      var v=pa[p],c=col(v);
-      return "<div class=\"pitem\"><div class=\"pitem-lbl\">Part "+p+"</div>"
-        +"<div class=\"pitem-val\" style=\"color:"+c+"\">"+v+"%</div>"
-        +"<div class=\"pitem-bar\"><div class=\"pitem-fill\" style=\"width:"+v+"%;background:"+c+"\"></div></div></div>";
-    }).join("");
+    var pbarHTML="<div class=\"pbar-wrap\">"+makePbar("Q1 Updated",q1c,r.total,"#059669")+makePbar("Approved",r.approvedCount,r.activeCount,"#2563eb")+"</div>";
     var tr=document.createElement("tr");tr.className="rc";
     (function(i2,t2){tr.onclick=function(){tog(i2,t2);};})(idx,tr);
-    tr.innerHTML="<td><strong>"+r.dept+"</strong></td>"
-      +"<td><span class=\"mono\">"+r.total+"</span></td>"
+    tr.innerHTML="<td><strong>"+r.dept+"</strong></td><td><span class=\"mono\">"+r.total+"</span></td>"
       +"<td>"+wdpHTML+"</td><td>"+pbarHTML+"</td>";
     var er=document.createElement("tr");er.className="er";er.id="ex"+idx;
     er.innerHTML="<td class=\"ec\" colspan=\"4\"><div class=\"ei\">"
-      +"<div style=\"font-size:10px;color:var(--mu);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px\">"
-      +"Avg Part Completion — "+r.dept+" (n="+r.total+")</div>"
-      +"<div class=\"pg5\">"+partHTML+"</div></div></td>";
+      +"<div style=\"font-size:10px;color:var(--mu);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px\">Avg Part Completion — "+r.dept+" (n="+r.total+")</div>"
+      +"<div class=\"pg5\">"+partHTML(pa)+"</div></div></td>";
     tbody.appendChild(tr);tbody.appendChild(er);
   });
   document.getElementById("pinf").textContent="Showing all "+data.length+" departments";
@@ -394,6 +378,4 @@ window.onload=function(){
   document.getElementById("updt").textContent="Data as of "+new Date().toLocaleDateString("en-GB",{year:"numeric",month:"short",day:"numeric"});
   initKPI();initCharts();initFilters();resetF();
 };
-</script>
-</body>
-</html>
+</script></body></html>
