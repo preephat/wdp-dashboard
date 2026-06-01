@@ -117,9 +117,9 @@ td{padding:9px 13px;vertical-align:middle}
       <div class="kl">Q1 Updated</div><div class="kv" id="kQ1"></div>
       <div class="kbar"><div class="kfill" id="bQ1" style="width:0;background:#7c3aed"></div></div>
     </div>
-    <div class="kpi" style="--c:#d97706">
-      <div class="kl">Setting Goals</div><div class="kv" id="kGL"></div>
-      <div class="kbar"><div class="kfill" id="bGL" style="width:0;background:#d97706"></div></div>
+    <div class="kpi" style="--c:#2563eb">
+      <div class="kl">Manager Approved</div><div class="kv" id="kGL"></div>
+      <div class="kbar"><div class="kfill" id="bGL" style="width:0;background:#2563eb"></div></div>
     </div>
     <div class="kpi" style="--c:#94a3b8">
       <div class="kl">No WDP Yet</div><div class="kv" id="kNW"></div>
@@ -295,12 +295,12 @@ function initKPI(){
   document.getElementById("kD").innerHTML=fmtKPI(KPI.draft);
   var q=KPI.q1+KPI.q2;
   document.getElementById("kQ1").innerHTML=fmtKPI(q);
-  document.getElementById("kGL").innerHTML=fmtKPI(KPI.goals);
+  document.getElementById("kGL").innerHTML=fmtKPI(KPI.approved);
   document.getElementById("kNW").innerHTML=fmtKPI(KPI.noWDP);
   document.getElementById("bA").style.width=pp(KPI.active,T)+"%";
   document.getElementById("bD").style.width=pp(KPI.draft,T)+"%";
   document.getElementById("bQ1").style.width=pp(q,T)+"%";
-  document.getElementById("bGL").style.width=pp(KPI.goals,T)+"%";
+  document.getElementById("bGL").style.width=pp(KPI.approved,T)+"%";
   var list=document.getElementById("noWDPlist");
   NO_WDP_NAMES.forEach(function(p){
     var div=document.createElement("div");
