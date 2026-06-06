@@ -107,6 +107,7 @@ td{padding:9px 13px;vertical-align:middle}
     <span class="updt" id="updt"></span>
   </div>
 </div>
+<div style="background:#fef3c7;border-bottom:1px solid #fcd34d;padding:6px 20px;font-size:11px;color:#92400e;display:flex;align-items:center;gap:6px"><span>&#9432;</span><span><strong>HQ Only</strong> &mdash; ข้อมูลนี้เฉพาะพนักงาน HQ เท่านั้น ไม่รวม Factory (Klong 13) &bull; ไม่นับ Top Executive (CEO &amp; C-Suite) &amp; ExComm</span></div>
 <div class="page">
   <div class="kg">
     <!-- Card 1: Total Excl Probation (clickable toggle) -->
@@ -365,14 +366,14 @@ function setMode(inclProb){
   }
   if(window._barChart){
     var sorted2=[...DEPT_DATA].sort(function(a,b){return a.dept.localeCompare(b.dept);});
-    window._barChart.data.labels=sorted2.map(function(d){return d.dept;});
+    window._barChart.data.labels=sorted2.map(function(d){return d.dept+" ("+Math.round(d.approvedCount/d.total*100)+"%)";});
     window._barChart.data.datasets=[
       {label:"Approved",stack:"s",backgroundColor:"#059669",borderSkipped:false,borderRadius:0,
-        data:sorted2.map(function(d){return d.activeCount>0?Math.round(d.approvedCount/d.activeCount*100):0;})},
+        data:sorted2.map(function(d){return d.total>0?Math.round(d.approvedCount/d.total*100):0;})},
       {label:"Not Approved",stack:"s",backgroundColor:"#e2e8f0",borderSkipped:false,
-        data:sorted2.map(function(d){return d.activeCount>0?100-Math.round(d.approvedCount/d.activeCount*100):0;})},
+        data:sorted2.map(function(d){return d.total>0?100-Math.round(d.approvedCount/d.total*100):0;})},
       {label:"No Active",stack:"s",backgroundColor:"#f1f5f9",borderSkipped:false,
-        data:sorted2.map(function(d){return d.activeCount===0?100:0;})}
+        data:sorted2.map(function(d){return 0;})}
     ];
     window._barChart.update();
   }
@@ -410,16 +411,16 @@ Chart.register({id:"barNote",afterDraw:function(chart){
   if(chart.canvas.id!=="dC")return;
   var ctx=chart.ctx;ctx.save();
   ctx.font="10px Inter,sans-serif";ctx.fillStyle="#94a3b8";ctx.textAlign="right";
-  ctx.fillText("% = Approved / Active employees per department",chart.chartArea.right,chart.height-4);
+  ctx.fillText("% = Approved / Total employees per department",chart.chartArea.right,chart.height-4);
   ctx.restore();
 }});
 function initCharts(){
   Chart.register(ChartDataLabels);
   var sorted=[...DEPT_DATA].sort(function(a,b){return a.dept.localeCompare(b.dept);});
   var barLabels=sorted.map(function(d){return d.dept;});
-  var approvedData=sorted.map(function(d){return d.activeCount>0?Math.round(d.approvedCount/d.activeCount*100):0;});
-  var notApprovedData=sorted.map(function(d){return d.activeCount>0?100-Math.round(d.approvedCount/d.activeCount*100):0;});
-  var noActiveData=sorted.map(function(d){return d.activeCount===0?100:0;});
+  var approvedData=sorted.map(function(d){return d.total>0?Math.round(d.approvedCount/d.total*100):0;});
+  var notApprovedData=sorted.map(function(d){return d.total>0?100-Math.round(d.approvedCount/d.total*100):0;});
+  var noActiveData=sorted.map(function(d){return 0;});
   window._barChart=new Chart(document.getElementById("dC"),{type:"bar",data:{labels:barLabels,
     datasets:[
       {label:"Approved",stack:"s",backgroundColor:"#059669",borderSkipped:false,borderRadius:0,data:approvedData},
@@ -433,12 +434,12 @@ function initCharts(){
         tooltip:{mode:"index",intersect:false,callbacks:{
           title:function(items){
             var d=sorted[items[0].dataIndex];
-            return d.dept+" (Active: "+d.activeCount+")";
+            return d.dept+" (Total: "+d.total+")";
           },
           label:function(c){
             if(c.dataset.label==="No Active")return null;
             var d=sorted[c.dataIndex];
-            var n=c.dataset.label==="Approved"?d.approvedCount:(d.activeCount-d.approvedCount);
+            var n=c.dataset.label==="Approved"?d.approvedCount:(d.total-d.approvedCount);
             return " "+c.dataset.label+": "+n+" ("+c.raw+"%)";
           },
           filter:function(i){return i.dataset.label!=="No Active";}}},
@@ -493,7 +494,7 @@ function renderTbl(){
     var tr=document.createElement("tr");tr.className="rc";
     (function(i2,t2){tr.onclick=function(){tog(i2,t2);};})(idx,tr);
     tr.innerHTML="<td><strong>"+r.dept+"</strong>"+(activePos?' <span style=\"font-size:10px;color:var(--mu2)\">('+activePos+')</span>':"")+"</td>"
-      +"<td><span class=\"mono\">"+v.total+"</span></td><td>"+wdpHTML+"</td><td>"+pbarHTML+"</td>";
+      +"<td><span class=\"mono\">"+((v.total||0)+(v.noWDPCount||0))+"</span></td><td>"+wdpHTML+"</td><td>"+pbarHTML+"</td>";
     var er=document.createElement("tr");er.className="er";er.id="ex"+idx;
     // Build individual rows for this dept (filtered by activePos if set)
     var deptPeople=INDIVIDUAL.filter(function(p){
@@ -643,14 +644,14 @@ function toggleProbation(){
       return sorted2.some(function(d){return (d.wdpStates[k]||0)>0;});
     });
     // Rebuild datasets
-    window._barChart.data.labels=sorted2.map(function(d){return d.dept;});
+    window._barChart.data.labels=sorted2.map(function(d){return d.dept+" ("+Math.round(d.approvedCount/d.total*100)+"%)";});
     window._barChart.data.datasets=[
       {label:"Approved",stack:"s",backgroundColor:"#059669",borderSkipped:false,borderRadius:0,
-        data:sorted2.map(function(d){return d.activeCount>0?Math.round(d.approvedCount/d.activeCount*100):0;})},
+        data:sorted2.map(function(d){return d.total>0?Math.round(d.approvedCount/d.total*100):0;})},
       {label:"Not Approved",stack:"s",backgroundColor:"#e2e8f0",borderSkipped:false,
-        data:sorted2.map(function(d){return d.activeCount>0?100-Math.round(d.approvedCount/d.activeCount*100):0;})},
+        data:sorted2.map(function(d){return d.total>0?100-Math.round(d.approvedCount/d.total*100):0;})},
       {label:"No Active",stack:"s",backgroundColor:"#f1f5f9",borderSkipped:false,
-        data:sorted2.map(function(d){return d.activeCount===0?100:0;})}
+        data:sorted2.map(function(d){return 0;})}
     ];
     window._barChart.update();
   }
