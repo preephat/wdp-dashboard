@@ -129,13 +129,13 @@ td{padding:9px 13px;vertical-align:middle}
       <div class="kbar"><div class="kfill" id="bQ1" style="width:0;background:#7c3aed"></div></div>
     </div>
     <!-- Card 4: Approved excl. CEO sign-off -->
-    <div class="kpi" style="--c:#059669;background:linear-gradient(135deg,#059669 0%,#0891b2 100%);color:#fff;box-shadow:0 4px 14px rgba(5,150,105,.3)">
-      <div class="kl" style="color:rgba(255,255,255,.8);font-size:10.5px">Approved excl. CEO Sign-off</div>
+    <div class="kpi" id="cardGL" style="--c:#059669;background:linear-gradient(135deg,#059669 0%,#0891b2 100%);color:#fff;box-shadow:0 4px 14px rgba(5,150,105,.3);cursor:pointer" onclick="setApprovalMode('l1')" title="Click to filter: L1 Approved view">
+      <div class="kl" style="color:rgba(255,255,255,.8);font-size:10.5px">Approved excl. CEO (L2 Sign-off)</div>
       <div class="kv" id="kGL" style="color:#fff"></div>
       <div class="kbar" style="background:rgba(255,255,255,.25)"><div class="kfill" id="bGL" style="width:0;background:#fff"></div></div>
     </div>
     <!-- Card 4b: Fully Approved -->
-    <div class="kpi" style="--c:#0369a1;background:linear-gradient(135deg,#0369a1 0%,#0e7490 100%);color:#fff;box-shadow:0 4px 14px rgba(3,105,161,.3)">
+    <div class="kpi" id="cardGL2" style="--c:#0369a1;background:linear-gradient(135deg,#0369a1 0%,#0e7490 100%);color:#fff;box-shadow:0 4px 14px rgba(3,105,161,.3);cursor:pointer" onclick="setApprovalMode('full')" title="Click to filter: Fully Approved view">
       <div class="kl" style="color:rgba(255,255,255,.8);font-size:10.5px">Fully Approved (incl. CEO)</div>
       <div class="kv" id="kGL2" style="color:#fff"></div>
       <div class="kbar" style="background:rgba(255,255,255,.25)"><div class="kfill" id="bGL2" style="width:0;background:#fff"></div></div>
@@ -497,11 +497,31 @@ function renderTbl(){
     wdpHTML+="</div><div class=\"pills\" style=\"margin-top:4px\">";
     // Count approved, not-yet, no-wdp, probation for this dept
     var deptAll=INDIVIDUAL.filter(function(p){return p.dept===r.dept;});
-    var deptApproved=deptAll.filter(function(p){return !p.onProbation&&p.approvalStatus==="Approved";}).length;
-    var deptNotYet=deptAll.filter(function(p){return !p.onProbation&&(p.approvalStatus==="Pending"||p.approvalStatus==="N/A");}).length;
-    var deptNoWDP=deptAll.filter(function(p){return !p.onProbation&&p.isNoWDP;}).length;
+    var deptApproved=deptAll.filter(function(p){
+      if(p.onProbation&&!showProbation)return false;
+      if(p.approvalStatus!=='Approved')return false;
+      return true;
+    }).length;
+    // In L1 mode, also count CEO-pending as "approved"
+    var ceoPendingCount=0;
+    if(approvalMode==='l1'){
+      ceoPendingCount=deptAll.filter(function(p){
+        return (showProbation||!p.onProbation)
+          && p.approvalStatus==='Pending'
+          && p.mgr2.toLowerCase().indexOf('piyajit')>=0
+          && p.mgr1!=='';
+      }).length;
+    }
+    var effectiveApproved=deptApproved+ceoPendingCount;
+    var deptNotYet=deptAll.filter(function(p){
+      if(p.onProbation&&!showProbation)return false;
+      if(p.approvalStatus==='Approved')return false;
+      if(approvalMode==='l1'&&p.mgr2.toLowerCase().indexOf('piyajit')>=0&&p.mgr1!=='')return false;
+      return p.approvalStatus==='Pending'||p.approvalStatus==='N/A';
+    }).length;
+    var deptNoWDP=deptAll.filter(function(p){return (showProbation||!p.onProbation)&&p.isNoWDP;}).length;
     var deptProb=deptAll.filter(function(p){return p.onProbation;}).length;
-    if(deptApproved>0) wdpHTML+="<span class=\"wp\" style=\"background:#d1fae5;color:#065f46\">Approved: "+deptApproved+"</span> ";
+    if(effectiveApproved>0) wdpHTML+="<span class=\"wp\" style=\"background:#d1fae5;color:#065f46\">Approved: "+effectiveApproved+"</span> ";
     if(deptNotYet>0)   wdpHTML+="<span class=\"wp\" style=\"background:#fee2e2;color:#991b1b\">Pending: "+deptNotYet+"</span> ";
     if(deptNoWDP>0)    wdpHTML+="<span class=\"wp\" style=\"background:#f1f5f9;color:#64748b\">No WDP: "+deptNoWDP+"</span> ";
     if(deptProb>0)     wdpHTML+="<span class=\"wp\" style=\"background:#fef3c7;color:#92400e\">Probation: "+deptProb+"</span>";
@@ -614,6 +634,7 @@ function tog(idx,tr){
 }
 // ── PROBATION TOGGLE ──
 var showProbation=false;
+var approvalMode='full'; // 'full' = fully approved | 'l1' = excl CEO L2
 function toggleProbation(){
   showProbation=!showProbation;
   // Swap data
@@ -726,6 +747,72 @@ function exportCSV(){
   var a=document.createElement("a");
   a.href=url;a.download="EWDP_Export_"+new Date().toISOString().slice(0,10)+".csv";
   document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+}
+// ── APPROVAL MODE TOGGLE ──
+function setApprovalMode(mode){
+  if(approvalMode===mode){ approvalMode='full'; } else { approvalMode=mode; }
+  // Update card highlight
+  var c1=document.getElementById('cardGL'), c2=document.getElementById('cardGL2');
+  c1.style.outline = approvalMode==='l1' ? '3px solid #fff' : 'none';
+  c1.style.transform = approvalMode==='l1' ? 'scale(1.03)' : 'scale(1)';
+  c2.style.outline = approvalMode==='full' && mode==='full' && approvalMode==='full' ? 'none' : 'none';
+  c2.style.transform = 'scale(1)';
+  // Recalc: get approved count based on mode
+  var approvedCount = approvalMode==='l1' ? (KPI.approvedL1||KPI.approved) : KPI.approved;
+  var pendingCount = T - approvedCount - (KPI.noWDP||0);
+  // Update donut
+  if(window._donutChart){
+    window._donutChart.data.datasets[0].data=[approvedCount, pendingCount, KPI.noWDP||0];
+    window._donutChart.options.plugins.legend.labels.generateLabels=function(chart){
+      return chart.data.labels.map(function(lbl,i){
+        var val=chart.data.datasets[0].data[i];
+        var p=pp(val,T);
+        return {text:lbl+" "+val+"/"+T+" ("+p+"%)",
+          fillStyle:chart.data.datasets[0].backgroundColor[i],
+          strokeStyle:'transparent',fontColor:'#475569',
+          hidden:false,index:i};
+      });
+    };
+    window._donutChart.update();
+  }
+  // Update bar chart — recalc approved per dept based on mode
+  if(window._barChart){
+    var newApprData=DEPT_DATA.map(function(d){
+      if(approvalMode==='l1'){
+        // L1 approved = anyone with Approve Date 1 filled (from INDIVIDUAL)
+        var deptPeople=INDIVIDUAL.filter(function(p){
+          return p.dept===d.dept && (showProbation||!p.onProbation);
+        });
+        var l1count=deptPeople.filter(function(p){
+          return p.approvalStatus==='Approved' || (p.mgr2 && p.approvalStatus==='Pending' && p.mgr1);
+        }).length;
+        // Simpler: count from INDIVIDUAL where L1 approved = approvalStatus Approved OR (has mgr2 and mgr1 filled but L2 not yet)
+        var l1c=INDIVIDUAL.filter(function(p){
+          return p.dept===d.dept && (showProbation||!p.onProbation) && !p.isNoWDP && p.recordStatus!=='Draft'
+            && (p.approvalStatus==='Approved' || (p.mgr2!==''&&p.approvalStatus==='Pending'&&p.mgr1!==''));
+        }).length + INDIVIDUAL.filter(function(p){
+          return p.dept===d.dept && (showProbation||!p.onProbation) && p.approvalStatus==='Approved';
+        }).length;
+        // Actually use pre-calc: approvedCount + awaitingCEO for this dept
+        var ceoPending=INDIVIDUAL.filter(function(p){
+          return p.dept===d.dept && (showProbation||!p.onProbation)
+            && p.approvalStatus==='Pending' && p.mgr2.toLowerCase().indexOf('piyajit')>=0 && p.mgr1!=='';
+        }).length;
+        return d.approvedCount + ceoPending;
+      }
+      return d.approvedCount;
+    });
+    window._barChart.data.datasets[0].data=newApprData.map(function(a,i){
+      var tot=(DEPT_DATA[i].total||0)+(DEPT_DATA[i].noWDPCount||0);
+      return tot>0?Math.round(a/tot*100):0;
+    });
+    window._barChart.data.datasets[1].data=newApprData.map(function(a,i){
+      var tot=(DEPT_DATA[i].total||0)+(DEPT_DATA[i].noWDPCount||0);
+      return tot>0?Math.round((tot-a)/tot*100):0;
+    });
+    window._barChart.update();
+  }
+  renderTbl();
 }
 function toggleNotApproved(){
   var btn=document.getElementById("fNotApproved");
