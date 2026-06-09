@@ -634,7 +634,7 @@ function tog(idx,tr){
 }
 // ── PROBATION TOGGLE ──
 var showProbation=false;
-var approvalMode='full'; // 'full' = fully approved | 'l1' = excl CEO L2
+var approvalMode='l1'; // 'full' = fully approved | 'l1' = excl CEO L2
 function toggleProbation(){
   showProbation=!showProbation;
   // Swap data
@@ -750,13 +750,19 @@ function exportCSV(){
 }
 // ── APPROVAL MODE TOGGLE ──
 function setApprovalMode(mode){
-  if(approvalMode===mode){ approvalMode='full'; } else { approvalMode=mode; }
-  // Update card highlight
+  approvalMode = (approvalMode===mode && mode!=='l1') ? 'full' : mode;
+  // Card highlight
   var c1=document.getElementById('cardGL'), c2=document.getElementById('cardGL2');
-  c1.style.outline = approvalMode==='l1' ? '3px solid #fff' : 'none';
-  c1.style.transform = approvalMode==='l1' ? 'scale(1.03)' : 'scale(1)';
-  c2.style.outline = approvalMode==='full' && mode==='full' && approvalMode==='full' ? 'none' : 'none';
-  c2.style.transform = 'scale(1)';
+  if(c1){
+    c1.style.outline = approvalMode==='l1' ? '3px solid rgba(255,255,255,0.9)' : 'none';
+    c1.style.transform = approvalMode==='l1' ? 'scale(1.03)' : 'scale(1)';
+    c1.style.transition = 'all 0.2s ease';
+  }
+  if(c2){
+    c2.style.outline = approvalMode==='full' && mode==='full' ? '3px solid rgba(255,255,255,0.9)' : 'none';
+    c2.style.transform = approvalMode==='full' && mode==='full' ? 'scale(1.03)' : 'scale(1)';
+    c2.style.transition = 'all 0.2s ease';
+  }
   // Recalc: get approved count based on mode
   var approvedCount = approvalMode==='l1' ? (KPI.approvedL1||KPI.approved) : KPI.approved;
   var pendingCount = T - approvedCount - (KPI.noWDP||0);
@@ -824,5 +830,6 @@ function toggleNotApproved(){
 window.onload=function(){
   document.getElementById("updt").textContent="Data as of "+new Date().toLocaleDateString("en-GB",{year:"numeric",month:"short",day:"numeric"})+" "+new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
   initKPI();initCharts();initFilters();resetF();updateCardHighlight();
+  setTimeout(function(){ setApprovalMode('l1'); }, 150);
 };
 </script></body></html>
